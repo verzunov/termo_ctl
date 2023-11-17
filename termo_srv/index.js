@@ -4,7 +4,7 @@ const hysteresis=0.5;
 
 function control(currentTemperature){
   currentTemperature=+currentTemperature;
-  console.writerln(currentTemperature);
+  console.log(currentTemperature);
   if (currentTemperature < desiredTemperature - hysteresis) {
     return "1"; // Включить нагреватель
   } else if (currentTemperature > desiredTemperature + hysteresis) {
