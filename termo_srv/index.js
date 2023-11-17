@@ -1,5 +1,15 @@
 const { ApolloServer, gql } = require('apollo-server');
+const desiredTemperature = 19.0;
+const hysteresis=0.5;
 
+function control(currentTemperature){
+  currentTemperature=+currentTemperature;
+  if (currentTemperature < desiredTemperature - hysteresis) {
+    return "1"; // Включить нагреватель
+  } else if (currentTemperature > desiredTemperature + hysteresis) {
+    return "0"; // Выключить нагреватель
+  }
+}
 const typeDefs = gql`
   type Query {
     power(temp: String): String
@@ -9,7 +19,7 @@ const typeDefs = gql`
 
 const resolvers = {
     Query: {
-      power: (_, args) => args.temp < 40 ? '1':'0',
+      power: (_, args) => control(args.temp),
     },
   };
   
