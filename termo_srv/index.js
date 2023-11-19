@@ -1,5 +1,5 @@
 const { ApolloServer, gql } = require('apollo-server');
-const desiredTemperature = 50.0;
+const desiredTemperature = 18.0;
 const hysteresis=0.5;
 
 function control(currentTemperature){
