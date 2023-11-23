@@ -67,7 +67,10 @@ function TemperatureLogs({ children }) {
           scales: {
             y: {
               beginAtZero: true
-            }
+            },
+            x: {
+                reverse: true, // Разворачиваем ось X
+              }
           }
         }
       });
