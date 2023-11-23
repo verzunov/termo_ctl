@@ -16,8 +16,15 @@ function control(currentTemperature){
   }
 }
 const typeDefs = gql`
+  scalar Date
+  type Note{
+    timestamp: Date!
+    temperature: Float!
+    powerState: String
+  }
   type Query {
     power(temp: String): String
+    log (qnt: Int):[Note]
   }
 `;
 
@@ -38,8 +45,11 @@ async function logData(temperature, powerState) {
     powerState
   });
 }
-
-
+async function getData(qnt)
+{
+  const collection = db.collection('temperature_logs');
+  return await collection.find().sort({timestamp:-1}).limit(qnt).toArray()
+}
 const resolvers = {
     Query: {
       power: async (_, args) => {
@@ -47,6 +57,11 @@ const resolvers = {
         await logData(args.temp, powerState);
         return powerState;
       },
+      log: async (_, args)=>{
+        const records=await getData(args.qnt);
+        console.log(records);
+        return records;
+      }
     },
   };
   

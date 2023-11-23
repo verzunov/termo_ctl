@@ -26,7 +26,7 @@ const char* PARAM_INPUT = "threshold_input";
 
 /////////////Интервал между обновлением показаний датчика DS18B20////////////////////
 unsigned long previousMillis = 0;     
-const long interval = 1000;    
+const long interval = 60000;    
 
 /////////////////////////////////////////////////////////////////////////////////////
 const int output = 4;                   // Вывод GPIO куда подключено реле
