@@ -48,7 +48,7 @@ async function logData(temperature, powerState) {
 async function getData(qnt)
 {
   const collection = db.collection('temperature_logs');
-  return await collection.find().sort({timestamp:-1}).limit(qnt).toArray()
+  return await collection.find().sort({timestamp:-1}).limit(qnt).toArray().reverse()
 }
 const resolvers = {
     Query: {
