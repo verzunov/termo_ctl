@@ -14,7 +14,7 @@ const GET_LOGS = gql`
 `;
 function TemperatureLogs({ children }) {
     const { loading, error, data } = useQuery(GET_LOGS, {
-      variables: { qnt: 5 }
+      variables: { qnt: 60 }
     });
   
     return children({ loading, error, data });
