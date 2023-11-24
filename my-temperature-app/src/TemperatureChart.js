@@ -111,6 +111,9 @@ function getFilledUpArray(array) {
             x: {
                 reverse: true, // Разворачиваем ось X
               }
+          },
+          animation: {
+            duration: 0 // Отключение анимации
           }
         }
       });
