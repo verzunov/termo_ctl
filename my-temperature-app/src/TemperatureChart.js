@@ -20,13 +20,26 @@ function TemperatureLogs({ children }) {
     return children({ loading, error, data });
   }
   function TemperatureChart() {
+    const { loading, error, data, refetch } = useQuery(GET_LOGS, {
+      variables: { qnt: 60 },
+      pollInterval: 60000, // Опрос данных каждую минуту
+    });
+  
+    useEffect(() => {
+      // Запуск таймера для периодического обновления данных
+      const intervalId = setInterval(() => {
+        refetch(); // Вызов refetch для повторного выполнения запроса
+      }, 60000); // Интервал в миллисекундах (60000 мс = 1 минута)
+  
+      return () => clearInterval(intervalId); // Очистка интервала при размонтировании компонента
+    }, [refetch]);
+  
     return (
       <TemperatureLogs>
         {({ loading, error, data }) => {
-            console.log(data);
           if (loading) return <p>Loading...</p>;
           if (error) return <p>Error :(</p>;
-          
+  
           return <ChartComponent data={data} />;
         }}
       </TemperatureLogs>
@@ -59,7 +72,14 @@ function getFilledUpArray(array) {
         }
       
 
-      const labels = data.log.map(entry => new Date(entry.timestamp).toLocaleString());
+      const labels = data.log.map(entry => {
+        const date = new Date(entry.timestamp);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${day}.${month} ${hours}:${minutes}`;
+      });
       const temperatures = data.log.map(entry => entry.temperature);
       const powerState = getFilledUpArray(data.log.map(entry => entry.powerState));
 
