@@ -14,7 +14,7 @@ const GET_LOGS = gql`
 `;
 function TemperatureLogs({ children }) {
     const { loading, error, data } = useQuery(GET_LOGS, {
-      variables: { qnt: 2 }
+      variables: { qnt: 5 }
     });
   
     return children({ loading, error, data });
@@ -33,6 +33,18 @@ function TemperatureLogs({ children }) {
     );
   }
   
+function getFilledUpArray(array) {
+    array=array.reverse();
+    let lastDefinedElement;
+    return array.map(element => {
+        if (element === null) {
+            element = lastDefinedElement; 
+        }
+        
+        lastDefinedElement = element;
+        return element;
+    }).reverse();    
+}
   function ChartComponent({ data }) {
     const chartRef = useRef(null);
     const [chart, setChart] = useState(null);
@@ -49,7 +61,8 @@ function TemperatureLogs({ children }) {
 
       const labels = data.log.map(entry => new Date(entry.timestamp).toLocaleString());
       const temperatures = data.log.map(entry => entry.temperature);
-  
+      const powerState = getFilledUpArray(data.log.map(entry => entry.powerState));
+
       const ctx = chartRef.current.getContext('2d');
       const tempChart = new Chart(ctx, {
         type: 'line',
@@ -61,7 +74,14 @@ function TemperatureLogs({ children }) {
             backgroundColor: 'rgba(255, 99, 132, 0.2)',
             borderColor: 'rgba(255, 99, 132, 1)',
             borderWidth: 1
-          }]
+          },
+        {
+            label: 'Power State',
+            data: powerState,
+            backgroundColor: 'rgba(0, 99, 132, 0.2)',
+            borderColor: 'rgba(0, 99, 132, 1)',
+            borderWidth: 1
+        }]
         },
         options: {
           scales: {
