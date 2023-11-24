@@ -1,13 +1,16 @@
 const { ApolloServer, gql } = require('apollo-server');
 const { MongoClient } = require('mongodb');
 
-const desiredTemperature = 18.0;
+
 const hysteresis=0.5;
 const mongoUrl = 'mongodb://mainSensor:jL6wGxZmyyq6gt@127.0.0.1:27017/termoCtl';
 
 
-function control(currentTemperature){
+async function control(currentTemperature){
+  let temp =  await getTemperature(1);
+  const desiredTemperature =temp[0].temperature;
   currentTemperature=+currentTemperature;
+  console.log(desiredTemperature);
   console.log(currentTemperature);
   if (currentTemperature < desiredTemperature - hysteresis) {
     return "1"; // Включить нагреватель
@@ -22,10 +25,19 @@ const typeDefs = gql`
     temperature: Float!
     powerState: String
   }
-  type Query {
+  type Temp{
+    timestamp:Date!
+    temperature:Float!
+  }
+    type Query {
     power(temp: String): String
     log (qnt: Int):[Note]
+    getTemperature(qnt: Int):[Temp]
   }
+  type Mutation {
+    setTemperature(temperature: Float): Boolean
+  }
+  
 `;
 
 // Подключение к MongoDB
@@ -45,6 +57,19 @@ async function logData(temperature, powerState) {
     powerState
   });
 }
+async function setTemperature(temperature){
+  const collection = db.collection('temperature_val');
+  await collection.insertOne({
+    timestamp: new Date(),
+    temperature
+  });
+  return true;
+}
+async function getTemperature(qnt){
+  const collection = db.collection('temperature_val');
+  const res= await collection.find().sort({timestamp:-1}).limit(qnt).toArray()
+  return res;
+}
 async function getData(qnt)
 {
   const collection = db.collection('temperature_logs');
@@ -53,16 +78,24 @@ async function getData(qnt)
 const resolvers = {
     Query: {
       power: async (_, args) => {
-        const powerState = control(args.temp);
+        const powerState = await control(args.temp);
         await logData(args.temp, powerState);
         return powerState;
       },
       log: async (_, args)=>{
         const records=await getData(args.qnt);
-        console.log(records);
         return records;
-      }
+      },
+     getTemperature: async (_, args)=>{
+        const lastTemperature = await getTemperature(args.qnt);
+        return lastTemperature;
+     }
     },
+    Mutation:{
+      setTemperature: async(_, args)=>{
+        return setTemperature(args.temperature);
+      }
+    }
   };
   
   const server = new ApolloServer({ typeDefs, resolvers });
