@@ -62,7 +62,9 @@ function TemperatureSelector() {
       <div>
         <input
           type="range"
-          style={{ width: "100%" }}
+          style={{  width: "100%",
+                    background: "#74A9D8;",
+                    border: "0px solid rgba(0, 99, 132, 0.2);" }}
           min="10"
           max="30"
           value={temperature}
