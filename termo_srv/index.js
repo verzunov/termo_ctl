@@ -4,6 +4,7 @@ const { MongoClient } = require('mongodb');
 
 const hysteresis=0.5;
 const mongoUrl = 'mongodb://mainSensor:jL6wGxZmyyq6gt@127.0.0.1:27017/termoCtl';
+let powerOn=false;
 
 
 async function control(currentTemperature){
@@ -13,10 +14,11 @@ async function control(currentTemperature){
   console.log(desiredTemperature);
   console.log(currentTemperature);
   if (currentTemperature < desiredTemperature - hysteresis) {
-    return "1"; // Включить нагреватель
+    powerOn=true; // Включить нагреватель
   } else if (currentTemperature > desiredTemperature + hysteresis) {
-    return "0"; // Выключить нагреватель
+    powerOn=false; // Выключить нагреватель
   }
+  return powerOn;
 }
 const typeDefs = gql`
   scalar Date
@@ -78,7 +80,7 @@ async function getData(qnt)
 const resolvers = {
     Query: {
       power: async (_, args) => {
-        const powerState = await control(args.temp);
+        const powerState = await control(args.temp) ? "1":"0";
         await logData(args.temp, powerState);
         return powerState;
       },
